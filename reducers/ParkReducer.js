@@ -3,7 +3,6 @@ import database from "../firebase";
 
 const initialState = {
   parkCollection: [],
-  myParks: [],
 };
 
 const ParkCollection = (state = initialState, action) => {

@@ -73,6 +73,7 @@ function addDog(dog) {
   set(ref(db, 'dogs/' + dog.id), dog);
 }
 
+
 export default function* rootSaga() {
   yield all([
     fork(listenForDogs),

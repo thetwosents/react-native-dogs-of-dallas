@@ -27,13 +27,13 @@ const DogScreen = ({navigation}) => {
             <View key={index} style={styles.dogContainer}>
               <Text style={styles.dogName}>{dog.name}</Text>
               <Text style={styles.dogAge}>{dog.age}</Text>
-              <Button
-                title="Remove"
-                onPress={() => {
-                  dispatch({ type: 'REMOVE_DOG', index });
-                }
-                }
-              />
+              {/* Show if claimed or not */}
+              {dog.claimed ? (
+                <Text style={styles.dogClaimed}>Claimed</Text>
+              ) : (
+                <Text style={styles.dogNotClaimed}>Not Claimed</Text>
+              )}
+              
             </View>
           );
         })

@@ -3,7 +3,10 @@ import React, {useState,useEffect} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 const MyDogsScreen = ({ navigation }) => {
-  const dogCollection = useSelector(state => state.dogCollection.dogCollection);
+  const dogCollection = useSelector(state => state.user.myDogs);
+  const parkCollection = useSelector(state => state.user.myParks);
+  const packCollection = useSelector(state => state.user.myPacks);
+  
   const dispatch = useDispatch();
 
   useEffect(() => {
