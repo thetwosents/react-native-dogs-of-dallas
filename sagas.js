@@ -3,7 +3,9 @@ import { all, call, put,take,fork,takeEvery } from 'redux-saga/effects'
 import {ref, set,onValue} from 'firebase/database'
 import db from './firebase'
 
-// A listener for firebase as a channel
+/*
+Listeners
+*/
 function* listenForDogs() {
   let path = ref(db, 'dogs');
 
@@ -28,7 +30,6 @@ function* listenForDogs() {
   }
 }
 
-// A listener for firebase as a channel
 function* listenForParks() {
   let path = ref(db, 'parks');
 
@@ -71,36 +72,55 @@ function* listenForUser() {
   }
 }
 
+/*
+Watchers
+*/
 function* watchAddDog() {
   let payload = yield take('ADD_DOG')
-  yield call(addDog, payload.dog)
-  yield put({ type: 'ADD_DOG_SUCCESS' })
+  try {
+    yield call(addDog, payload.dog)
+    yield put({ type: 'ADD_DOG_SUCCESS' })
+  } catch (error) {
+    yield put({ type: 'ADD_DOG_FAILURE', error })
+  }
 }
 
 // Watch for REMOVE DOG
 function* watchRemoveDog() {
   let payload = yield take('REMOVE_DOG')
-  yield call(removeDog, payload.index)
-  yield put({ type: 'REMOVE_DOG_SUCCESS' })
+  try {
+    yield call(removeDog, payload.dog)
+    yield put({ type: 'REMOVE_DOG_SUCCESS' })
+  } catch (error) {
+    yield put({ type: 'REMOVE_DOG_FAILURE', error })
+  }
 }
 
-
-function addDog(dog) {
-  set(ref(db, 'dogs/' + dog.id), dog);
-}
 
 function* watchAddParkToCollection() {
-  console.log('watchAddParkToCollection');
-  let payload = yield takeEvery('ADD_PARK_TO_COLLECTION', addParkToCollection);
-  // Return the payload to the reducer
-  yield put({ type: 'ADD_PARK_TO_COLLECTION_SUCCESS', payload });
+  try {
+    let payload = yield takeEvery('ADD_PARK_TO_COLLECTION', addParkToCollection);
+    yield put({ type: 'ADD_PARK_TO_COLLECTION_SUCCESS',payload })
+  } catch (error) {
+    yield put({ type: 'ADD_PARK_TO_COLLECTION_FAILURE', error })
+  }  
 } 
 
-function *watchAddDogToCollection() {
-  console.log('watchAddDogToCollection');
-  let payload = yield takeEvery('ADD_DOG_TO_COLLECTION', addDogToCollection);
-  // Return the payload to the reducer
-  yield put({ type: 'ADD_DOG_TO_COLLECTION_SUCCESS', payload });
+function* watchAddDogToCollection() {
+  try {
+    let payload = yield takeEvery('ADD_DOG_TO_COLLECTION', addDogToCollection);
+    yield put({ type: 'ADD_DOG_TO_COLLECTION_SUCCESS', payload });
+  } catch (error) {
+    yield put({ type: 'ADD_DOG_TO_COLLECTION_FAILURE', error })
+  }
+}
+
+
+/*
+Async functions
+*/
+function addDog(dog) {
+    set(ref(db, 'dogs/' + dog.id), dog);
 }
 
 function addParkToCollection(payload) {

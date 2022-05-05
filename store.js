@@ -11,7 +11,11 @@ import PackCollection from './reducers/PackCollection';
 
 // Sagas
 import rootSaga from './sagas';
-const sagaMiddleware = createSagaMiddleware();
+const sagaMiddleware = createSagaMiddleware({
+  onError: (error) => {
+    console.log('Saga error:', error);
+  }
+});
 
 // Middlewares
 const middlewares = [sagaMiddleware];
