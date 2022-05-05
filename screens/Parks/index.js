@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Button, StatusBar, Image, ScrollView } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import MasonryList from '@react-native-seoul/masonry-list';
 import moment from 'moment';
 import { useEffect } from 'react';
 
@@ -56,38 +57,34 @@ const ParkScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text>Dog Parks by Neighborhood</Text>
       <StatusBar style="auto" />
-      <ScrollView>
+      <MasonryList
+        data={parkCollection}
+        keyExtractor={(item, index) => item.id}
+        numColumns={2}
+        showsVerticalScrollIndicator={false}
+        renderItem={({item}) => <CardItem item={item} />}
+      />
+      
+    </View>
+  );
+}
+
+const CardItem = ({ item }) => {
+  let largeOrSmall = 'small';
+  if (Math.random() > 0.5) {
+    largeOrSmall = 'large';
+  }
+
+  return (
+    <View style={styles.card}>
+      <Image resizeMode="cover" source={{ uri: item.featured_image }} style={(largeOrSmall === 'large') ? styles.cardImageLarge : styles.cardImageSmall} />
+      <Text style={styles.cardTitle}>{item.name}</Text>
+      <Text style={styles.checkin}>Number of dogs at park: {item.dogs.length}</Text>
+      {/* Latest check in */}
       {
-        parksByName.map((parkGroup, index) => (
-          <View style={{width: '100%'}} key={index}>
-            <Text>Neighborhood: {parkGroup.name}</Text>
-
-            {
-              parkGroup.parks.map((park, index) => (
-                <View key={index} style={styles.park}>
-                  
-                  <Image source={{ uri: park.featured_image }} style={{ width: '100%', height: 200 }} />
-                  <Text>{park.name}</Text>
-                  <Text>Number of dogs at park: {park.dogs.length}</Text>
-                  {/* Latest check in */}
-                  {
-                    park.dogs.length > 0 &&
-                    <Text>Latest check in: {moment(park.dogs[0].timestamp).format('MMMM Do YYYY, h:mm:ss a')}</Text>
-                  }
-                  
-
-
-                  <Button
-                    title="Go to Park Detail"
-                    onPress={() => navigation.navigate('Park Detail Screen', { park })}
-                  />
-                </View>
-              ))
-            }
-          </View>
-        ))
+        item.dogs.length > 0 &&
+        <Text style={styles.checkin}>Latest check in: {moment(item.dogs[0].timestamp).format('MMMM Do YYYY, h:mm:ss a')}</Text>
       }
-      </ScrollView>
     </View>
   );
 }
@@ -96,11 +93,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingLeft: 10,
+    paddingRight: 10,
   },
   park: {
     width: '95%',
     marginBottom: 20,
     margin: 'auto',
-  }
+  },
+  card: {
+    marginTop: 0, flex: 1, paddingTop: 10, paddingBottom: 0, paddingLeft: 6, paddingRight: 6, backgroundColor: '#fff'
+  },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 8,
+    marginBottom: 2,
+  },
+  cardImageLarge: {
+    borderRadius: 12,
+    alignSelf: 'stretch', height: 200,
+  },
+  checkin: {
+    fontSize: 10,
+    fontStyle: 'italic',
+    marginTop: 0,
+    marginBottom: 12,
+  },
+  cardImageSmall: {
+    borderRadius: 12,
+    alignSelf: 'stretch', height: 100,
+  },
 });
 export default ParkScreen;

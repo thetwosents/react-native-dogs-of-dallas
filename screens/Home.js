@@ -3,9 +3,9 @@ import {useSelector, useDispatch} from 'react-redux';
 import React, {useState,useEffect} from 'react';
 
 const HomeScreen = ({ navigation }) => {
-  const dogCollection = useSelector(state=>state.dogCollection.dogCollection);
-  const parkCollection = useSelector(state=>state.parkCollection.parkCollection);
-  const user = useSelector(state=>state.user);
+  const dogCollection = useSelector(state=>state.dogCollection.dogCollection || []);
+  const parkCollection = useSelector(state=>state.parkCollection.parkCollection || []);
+  const user = useSelector(state=>state.user || {});
   const dispatch = useDispatch();
 
   

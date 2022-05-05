@@ -3,6 +3,8 @@ import { all, call, put,take,fork,takeEvery } from 'redux-saga/effects'
 import {ref, set,onValue} from 'firebase/database'
 import db from './firebase'
 
+
+
 /*
 Listeners
 */
@@ -55,7 +57,7 @@ function* listenForParks() {
 }
 
 function* listenForUser() {
-  let path = ref(db, 'users/' + localStorage.getItem('uid'));
+  let path = ref(db, 'users/bjWXG02u8XQhbYZtr9T0qXexA4x2');
 
   const channel = yield call(eventChannel, (emitter) => {
     onValue(path,(snapshot) => {

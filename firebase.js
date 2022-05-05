@@ -27,6 +27,9 @@ signInAnonymously(auth)
     // Make globally available in the application
     window.user = user;
     localStorage.setItem("uid", user.uid);
+
+    // Update the user in the state
+    dispatch({ type: "USER_SIGNED_IN", user });
   })
   .catch((error) => {
     const errorCode = error.code;

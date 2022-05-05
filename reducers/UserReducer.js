@@ -17,6 +17,11 @@ const UserReducer = (state = initialState, action) => {
         ...state,
         myDogs: action.myDogs
       };
+      case 'USER_SIGNED_IN':
+      return {
+        ...state,
+        signedIn: true
+      };
       case 'ADD_PARK_TO_COLLECTION':
         let myParks = state.myParks;
         myParks[action.park.id] = true;

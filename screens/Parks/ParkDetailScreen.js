@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, StatusBar } from 'react-native';
+import MasonryList from '@react-native-seoul/masonry-list';
 import { useSelector, useDispatch } from 'react-redux';
 import moment from 'moment';
 
