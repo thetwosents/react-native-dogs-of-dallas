@@ -6,11 +6,7 @@ import { useEffect } from 'react';
 const ParkScreen = ({ navigation }) => {
   const parkCollection = useSelector(state => state.parkCollection.parkCollection);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    console.log('ParkScreen: useEffect', parkCollection);
-  }, [parkCollection]);
-
+  
   // Group all parks by Neighborhood
   const parksByNeighborhood = {};
   parkCollection.forEach(park => {

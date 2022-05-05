@@ -79,7 +79,7 @@ const ParkDetailScreen = ({ route, navigation }) => {
       />
       <Button
         title="Add to My Parks"
-        onPress={() => dispatch({ type: 'ADD_PARK_TO_COLLECTION', user: {name: "Jon", id: 1},park:  park })} />
+        onPress={() => dispatch({ type: 'ADD_PARK_TO_COLLECTION', user: window.user,park:  park })} />
       <Button
         title="Check in at Park"
         onPress={() => checkInDogs()}

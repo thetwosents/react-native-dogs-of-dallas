@@ -19,6 +19,7 @@ const UserReducer = (state = initialState, action) => {
           ...state,
           myParks: myParks
         };
+
       case 'ADD_DOG_TO_COLLECTION':
         let myDogs = state.myDogs;
         myDogs[action.dog.id] = true;

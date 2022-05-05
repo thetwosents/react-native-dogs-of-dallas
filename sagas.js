@@ -54,7 +54,7 @@ function* listenForParks() {
 }
 
 function* listenForUser() {
-  let path = ref(db, 'users/1');
+  let path = ref(db, 'users/' + localStorage.getItem('uid'));
 
   const channel = yield call(eventChannel, (emitter) => {
     onValue(path,(snapshot) => {
@@ -106,13 +106,13 @@ function *watchAddDogToCollection() {
 function addParkToCollection(payload) {
   let user = payload.user;
   let park = payload.park;
-  set(ref(db, 'users/' + user.id + '/myParks/' + park.id), true);
+  set(ref(db, 'users/' + user.uid + '/myParks/' + park.id), true);
 }
 
 function addDogToCollection(payload) {
   let user = payload.user;
   let dog = payload.dog;
-  set(ref(db, 'users/' + user.id + '/myDogs/' + dog.id), true);
+  set(ref(db, 'users/' + user.uid + '/myDogs/' + dog.id), true);
 }
 
 export default function* rootSaga() {

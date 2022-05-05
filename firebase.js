@@ -26,6 +26,7 @@ signInAnonymously(auth)
 
     // Make globally available in the application
     window.user = user;
+    localStorage.setItem("uid", user.uid);
   })
   .catch((error) => {
     const errorCode = error.code;
