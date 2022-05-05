@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, StatusBar } from 'react-native';
+import MasonryList from '@react-native-seoul/masonry-list';
 import { useSelector, useDispatch } from 'react-redux';
 import moment from 'moment';
 
@@ -9,10 +10,7 @@ const ParkDetailScreen = ({ route, navigation }) => {
   const dispatch = useDispatch();
 
   // Get my dogs
-  const myDogs = useSelector(state => state.dogCollection.dogCollection);
-
-  useEffect(() => {
-  }, [dispatch, park.id]);
+  const myDogs = useSelector(state => state.user.myDogs);
 
   const checkInDogs = () => {
     // Check in dogs
@@ -79,7 +77,7 @@ const ParkDetailScreen = ({ route, navigation }) => {
       />
       <Button
         title="Add to My Parks"
-        onPress={() => dispatch({ type: 'ADD_PARK_TO_COLLECTION', user: {name: "Jon", id: 1},park:  park })} />
+        onPress={() => dispatch({ type: 'ADD_PARK_TO_COLLECTION', user: window.user,park:  park })} />
       <Button
         title="Check in at Park"
         onPress={() => checkInDogs()}

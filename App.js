@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 // Navigation
 import { NavigationContainer } from '@react-navigation/native';
@@ -31,6 +31,10 @@ import GlobalNotification from './components/Notification';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  useEffect(() => {
+    store.dispatch({ type: 'GET_DOGS' });
+    store.dispatch({ type: 'GET_PARKS' });
+  }, []);
   return (
     <Provider store={store} >
       <GlobalNotification />
