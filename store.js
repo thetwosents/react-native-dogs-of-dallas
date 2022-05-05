@@ -16,7 +16,7 @@ const sagaMiddleware = createSagaMiddleware();
 // Middlewares
 const middlewares = [sagaMiddleware];
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+// const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store = createStore(
   combineReducers({
@@ -26,7 +26,7 @@ const store = createStore(
     packCollection: PackCollection,
     notifications: NotificationReducer,
   }),
-  composeEnhancers(applyMiddleware(...middlewares)),
+  applyMiddleware(...middlewares),
 );
 
 sagaMiddleware.run(rootSaga);

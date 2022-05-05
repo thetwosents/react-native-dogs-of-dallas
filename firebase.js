@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
+import { getAuth, signInAnonymously } from "firebase/auth";
 
-
+var user = null;
 const firebaseConfig = {
   apiKey: "AIzaSyCOTHeRQtARcXK7gu-AO5_pb2NMNMhPJTE",
   authDomain: "paw-pack-872f4.firebaseapp.com",
@@ -16,5 +17,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Export the database for components to use
+const auth = getAuth();
+signInAnonymously(auth)
+  .then(() => {
+    user = auth.currentUser;
+
+    console.log("User signed in anonymously");
+
+    // Make globally available in the application
+    window.user = user;
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // ...
+  });
+
+
 export default database;

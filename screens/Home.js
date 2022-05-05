@@ -5,18 +5,10 @@ import React, {useState,useEffect} from 'react';
 const HomeScreen = ({ navigation }) => {
   const dogCollection = useSelector(state=>state.dogCollection.dogCollection);
   const parkCollection = useSelector(state=>state.parkCollection.parkCollection);
+  const user = useSelector(state=>state.user);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    console.log('HomeScreen: useEffect');
-  }, []);
-  useEffect(() => {
-    console.log('DogCollection: useEffect', dogCollection);
-  }, [dogCollection]);
-
-  useEffect(() => {
-    console.log('ParkCollection: useEffect', parkCollection);
-  }, [parkCollection]);
+  
   return (
     <View style={styles.container}>
       <Text>Home Screen</Text>
