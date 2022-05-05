@@ -1,9 +1,17 @@
+
 const initialState = {
   dogCollection: [],
 };
 
 const DogCollection = (state = initialState, action) => {
+  // Get the dogs from the database and set them in the state
+
   switch (action.type) {
+    case 'GET_DOGS':    
+      return {
+        ...state,
+        dogCollection: action.dogs,
+      };
     case 'ADD_DOG':
       const dogId = Math.random().toString(36).substring(7);
 

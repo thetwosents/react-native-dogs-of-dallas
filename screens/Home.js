@@ -10,7 +10,9 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     console.log('HomeScreen: useEffect');
   }, []);
-
+  useEffect(() => {
+    console.log('DogCollection: useEffect', dogCollection);
+  }, [dogCollection]);
   return (
     <View style={styles.container}>
       <Text>Home Screen</Text>
