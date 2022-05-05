@@ -4,12 +4,12 @@ const initialState = {
 
 const PackCollection = (state = initialState, action) => {
   switch (action.type) {
-    case 'ADD_PARK':
+    case 'ADD_PACK':
       return {
         ...state,
         packCollection: [...state.packCollection, action.pack],
       };
-    case 'REMOVE_PARK':
+    case 'REMOVE_PACK':
       // Remove by index in the array
       return {
         ...state,

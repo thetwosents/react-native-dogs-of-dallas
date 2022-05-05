@@ -17,7 +17,6 @@ import MyDogsScreen from './screens/Dogs/MyDogs';
 // Packs
 import PacksScreen from './screens/Packs';
 
-
 // Parks
 import ParksScreen from './screens/Parks';
 import ParkDetailScreen from './screens/Parks/ParkDetailScreen';

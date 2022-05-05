@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { View, Text, StyleSheet, Button, StatusBar } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -10,23 +11,33 @@ const dogNames = [
 ];
 
 const DogScreen = ({navigation}) => {
-  const dogCollection = useSelector(state=>state.dogCollection);
+  const dogCollection = useSelector(state=>state.dogCollection.dogCollection);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log('DogScreen: useEffect', dogCollection);
+  }, [dogCollection]);
   return (
     <View style={styles.container}>
       <Text>Dog Screen</Text>
       <StatusBar style="auto" />
-      {dogNames.map((name) => (
-        <Button
-          key={name}
-          title={name}
-          onPress={() => dispatch({type: 'ADD_DOG', dog: {name: name}})}
-        />
-      ))}
-      <Button
-        title="Go to My Dogs"
-        onPress={() => navigation.navigate('My Dogs Screen')}
-      />
+      {
+        dogCollection.map((dog, index) => {
+          return (
+            <View key={index} style={styles.dogContainer}>
+              <Text style={styles.dogName}>{dog.name}</Text>
+              <Text style={styles.dogAge}>{dog.age}</Text>
+              {/* Show if claimed or not */}
+              {dog.claimed ? (
+                <Text style={styles.dogClaimed}>Claimed</Text>
+              ) : (
+                <Text style={styles.dogNotClaimed}>Not Claimed</Text>
+              )}
+              
+            </View>
+          );
+        })
+      }
     </View>
   );
 }
