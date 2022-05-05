@@ -9,10 +9,7 @@ const ParkDetailScreen = ({ route, navigation }) => {
   const dispatch = useDispatch();
 
   // Get my dogs
-  const myDogs = useSelector(state => state.dogCollection.dogCollection);
-
-  useEffect(() => {
-  }, [dispatch, park.id]);
+  const myDogs = useSelector(state => state.user.myDogs);
 
   const checkInDogs = () => {
     // Check in dogs
