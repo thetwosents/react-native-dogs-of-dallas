@@ -1,10 +1,15 @@
 import { View, Text, StyleSheet, Button, StatusBar, Image, ScrollView } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import moment from 'moment';
+import { useEffect } from 'react';
 
 const ParkScreen = ({ navigation }) => {
   const parkCollection = useSelector(state => state.parkCollection.parkCollection);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log('ParkScreen: useEffect', parkCollection);
+  }, [parkCollection]);
 
   // Group all parks by Neighborhood
   const parksByNeighborhood = {};
@@ -15,6 +20,8 @@ const ParkScreen = ({ navigation }) => {
       parksByNeighborhood[park.neighborhood] = [park];
     }
 
+    park.dogs = park.dogs || [];
+    
     // Check in park.dogs for expired dogs and remove them
     park.dogs.forEach(dog => {
       if (dog.expires < new Date()) {

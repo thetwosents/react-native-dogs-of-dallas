@@ -28,6 +28,33 @@ function* listenForDogs() {
   }
 }
 
+// A listener for firebase as a channel
+function* listenForParks() {
+  let path = ref(db, 'parks');
+
+  const channel = yield call(eventChannel, (emitter) => {
+    onValue(path,(snapshot) => {
+
+      // Get the object.keys make the response an array
+      let parks = Object.keys(snapshot.val()).map(key => {
+        return {
+          ...snapshot.val()[key],
+          id: key,
+        };
+      });
+      emitter({ type: 'GET_PARKS', parks });
+    });
+    return () => {};
+  }
+  );
+  while (true) {
+    const action = yield take(channel);
+    yield put(action);
+  }
+}
+
+
+
 function* watchAddDog() {
   let payload = yield take('ADD_DOG')
   yield call(addDog, payload.dog)
@@ -49,6 +76,7 @@ function addDog(dog) {
 export default function* rootSaga() {
   yield all([
     fork(listenForDogs),
+    fork(listenForParks),
     fork(watchAddDog),
     fork(watchRemoveDog),
   ]);

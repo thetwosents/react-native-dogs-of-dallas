@@ -17,7 +17,6 @@ const middlewares = [sagaMiddleware];
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-// Combine all reducers
 const store = createStore(
   combineReducers({
     dogCollection: DogCollection,

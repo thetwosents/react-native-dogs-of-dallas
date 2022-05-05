@@ -13,9 +13,6 @@ const DogCollection = (state = initialState, action) => {
         dogCollection: action.dogs,
       };
     case 'ADD_DOG':
-      const dogId = Math.random().toString(36).substring(7);
-
-      action.dog.id = dogId;
       return {
         ...state,
         dogCollection: [...state.dogCollection, action.dog],
