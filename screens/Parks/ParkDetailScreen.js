@@ -1,19 +1,19 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Button, StatusBar} from 'react-native';
-import {useSelector, useDispatch} from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Button, StatusBar } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
 import moment from 'moment';
 
-const ParkDetailScreen = ({route, navigation}) => {
-  const {park} = route.params;
-  const parkCollection = useSelector(state=>state.parkCollection);
-  const dispatch = useDispatch();  
+const ParkDetailScreen = ({ route, navigation }) => {
+  const { park } = route.params;
+  const parkCollection = useSelector(state => state.parkCollection);
+  const dispatch = useDispatch();
 
   // Get my dogs
-  const myDogs = useSelector(state=>state.dogCollection.dogCollection);
+  const myDogs = useSelector(state => state.dogCollection.dogCollection);
 
-  useEffect(()=>{
+  useEffect(() => {
   }, [dispatch, park.id]);
-  
+
   const checkInDogs = () => {
     // Check in dogs
     myDogs.forEach(dog => {
@@ -35,7 +35,7 @@ const ParkDetailScreen = ({route, navigation}) => {
       }
     });
   }
-  
+
   return (
     <View>
       <Text>ParkDetailScreen</Text>
@@ -45,7 +45,7 @@ const ParkDetailScreen = ({route, navigation}) => {
           <Text>Number of dogs at park: {park.dogs.length}</Text>
         ) : (
           <></>
-          )
+        )
       }
 
       {
@@ -79,12 +79,11 @@ const ParkDetailScreen = ({route, navigation}) => {
       />
       <Button
         title="Add to My Parks"
-        onPress={() => dispatch({type: 'ADD_PARK_TO_MY_PARKS', park})}
-      />
+        onPress={() => dispatch({ type: 'ADD_PARK_TO_COLLECTION', user: {name: "Jon", id: 1},park:  park })} />
       <Button
         title="Check in at Park"
         onPress={() => checkInDogs()}
-      />                    
+      />
     </View>
   );
 }

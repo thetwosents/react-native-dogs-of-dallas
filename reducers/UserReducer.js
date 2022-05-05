@@ -1,18 +1,33 @@
 const initialState = {
-  myDogs: [],
-  myPacks: [],
-  myParks: []
+  myDogs: {},
+  myPacks: {},
+  myParks: {}
 };
+
 
 const UserReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'GET_ACCOUNT':
+    case 'GET_USER':
       return {
         ...state,
-        myDogs: action.myDogs,
-        myPacks: action.myPacks,
-        myParks: action.myParks,
+        ...action.user
       };
+      case 'ADD_PARK_TO_COLLECTION':
+        let myParks = state.myParks;
+        myParks[action.park.id] = true;
+        return {
+          ...state,
+          myParks: myParks
+        };
+      case 'ADD_DOG_TO_COLLECTION':
+        let myDogs = state.myDogs;
+        myDogs[action.dog.id] = true;
+        return {
+          ...state,
+          myDogs: myDogs
+        };
+        
+      
       default:
         return state;
     }

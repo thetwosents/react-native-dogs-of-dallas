@@ -1,5 +1,5 @@
 import { eventChannel, END } from 'redux-saga'
-import { all, call, put,take,fork } from 'redux-saga/effects'
+import { all, call, put,take,fork,takeEvery } from 'redux-saga/effects'
 import {ref, set,onValue} from 'firebase/database'
 import db from './firebase'
 
@@ -53,7 +53,23 @@ function* listenForParks() {
   }
 }
 
+function* listenForUser() {
+  let path = ref(db, 'users/1');
 
+  const channel = yield call(eventChannel, (emitter) => {
+    onValue(path,(snapshot) => {
+        
+      emitter({ type: 'GET_USER', user: snapshot.val() });
+    }
+    );
+    return () => {};
+  }
+  );
+  while (true) {
+    const action = yield take(channel);
+    yield put(action);
+  }
+}
 
 function* watchAddDog() {
   let payload = yield take('ADD_DOG')
@@ -73,12 +89,40 @@ function addDog(dog) {
   set(ref(db, 'dogs/' + dog.id), dog);
 }
 
+function* watchAddParkToCollection() {
+  console.log('watchAddParkToCollection');
+  let payload = yield takeEvery('ADD_PARK_TO_COLLECTION', addParkToCollection);
+  // Return the payload to the reducer
+  yield put({ type: 'ADD_PARK_TO_COLLECTION_SUCCESS', payload });
+} 
+
+function *watchAddDogToCollection() {
+  console.log('watchAddDogToCollection');
+  let payload = yield takeEvery('ADD_DOG_TO_COLLECTION', addDogToCollection);
+  // Return the payload to the reducer
+  yield put({ type: 'ADD_DOG_TO_COLLECTION_SUCCESS', payload });
+}
+
+function addParkToCollection(payload) {
+  let user = payload.user;
+  let park = payload.park;
+  set(ref(db, 'users/' + user.id + '/myParks/' + park.id), true);
+}
+
+function addDogToCollection(payload) {
+  let user = payload.user;
+  let dog = payload.dog;
+  set(ref(db, 'users/' + user.id + '/myDogs/' + dog.id), true);
+}
 
 export default function* rootSaga() {
   yield all([
     fork(listenForDogs),
     fork(listenForParks),
+    fork(listenForUser),
     fork(watchAddDog),
     fork(watchRemoveDog),
+    fork(watchAddParkToCollection),
+    fork(watchAddDogToCollection),
   ]);
 }
