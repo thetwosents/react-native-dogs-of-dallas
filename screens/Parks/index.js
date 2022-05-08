@@ -1,11 +1,11 @@
-import { View, Text, StyleSheet, Button, StatusBar, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Image, ScrollView } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import MasonryList from '@react-native-seoul/masonry-list';
 import moment from 'moment';
 import { useEffect } from 'react';
 
 const ParkScreen = ({ navigation }) => {
-  const parkCollection = useSelector(state => state.parkCollection.parkCollection);
+  const parkCollection = useSelector(state => state.parkCollection.parkCollection || [])
   const dispatch = useDispatch();
   
   // Group all parks by Neighborhood
@@ -17,17 +17,6 @@ const ParkScreen = ({ navigation }) => {
       parksByNeighborhood[park.neighborhood] = [park];
     }
 
-    park.dogs = park.dogs || [];
-    
-    // Check in park.dogs for expired dogs and remove them
-    park.dogs.forEach(dog => {
-      if (dog.expires < new Date()) {
-        dispatch({
-          type: 'REMOVE_DOG_FROM_PARK',
-          payload: dog.id
-        });
-      }
-    })
   });
 
   // Sort parks by name
@@ -55,37 +44,49 @@ const ParkScreen = ({ navigation }) => {
   }
   return (
     <View style={styles.container}>
-      <Text>Dog Parks by Neighborhood</Text>
       <StatusBar style="auto" />
+      <ScrollView>
+      <Text style={{fontSize:48, fontWeight: 'bold', marginTop: 64, marginBottom: 12, paddingLeft: 10}}>Parks</Text>
       <MasonryList
         data={parkCollection}
         keyExtractor={(item, index) => item.id}
         numColumns={2}
         showsVerticalScrollIndicator={false}
-        renderItem={({item}) => <CardItem item={item} />}
+        renderItem={({item}) => <CardItem item={item} navigation={navigation} />}
       />
+      </ScrollView>
       
     </View>
   );
 }
 
-const CardItem = ({ item }) => {
+const CardItem = ({ item, navigation }) => {
   let largeOrSmall = 'small';
   if (Math.random() > 0.5) {
     largeOrSmall = 'large';
   }
 
   return (
+    <TouchableOpacity
+      onPress={() => {
+        navigation.navigate('Park Detail Screen', {
+          park: item,
+        });
+      }
+      }
+      >
     <View style={styles.card}>
       <Image resizeMode="cover" source={{ uri: item.featured_image }} style={(largeOrSmall === 'large') ? styles.cardImageLarge : styles.cardImageSmall} />
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.checkin}>Number of dogs at park: {item.dogs.length}</Text>
-      {/* Latest check in */}
-      {
-        item.dogs.length > 0 &&
-        <Text style={styles.checkin}>Latest check in: {moment(item.dogs[0].timestamp).format('MMMM Do YYYY, h:mm:ss a')}</Text>
-      }
+      <View style={styles.cardContent}>
+        {/* Neighborhood */}
+        <Text style={styles.neighborhood}>{item.neighborhood}</Text>
+        <Text style={styles.cardTitle}>{item.name}</Text>
+        
+        <Text style={styles.checkin}>Number of dogs at park: {item.dogs ? Object.keys(item.dogs).length : 0}</Text>
+        <Text style={styles.checkin}>Last check-in: {item.dogs ? moment(item.dogs[Object.keys(item.dogs)[0]].timestamp).format('MMMM Do YYYY, h:mm:ss a') : 'No check-ins yet'}</Text>
+      </View>
     </View>
+    </TouchableOpacity>
   );
 }
 
@@ -102,27 +103,43 @@ const styles = StyleSheet.create({
     margin: 'auto',
   },
   card: {
-    marginTop: 0, flex: 1, paddingTop: 10, paddingBottom: 0, paddingLeft: 6, paddingRight: 6, backgroundColor: '#fff'
+    marginTop: 0, flex: 1, paddingTop: 8, paddingBottom: 0, paddingLeft: 8, paddingRight: 8, backgroundColor: '#fff'
+  },
+  neighborhood: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#999',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  cardContent: {
+    flex: 1,
+    padding: 6,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   cardTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginTop: 8,
+    
     marginBottom: 2,
   },
   cardImageLarge: {
-    borderRadius: 12,
-    alignSelf: 'stretch', height: 200,
+    borderRadius: 6,
+    alignSelf: 'stretch', 
+    height: 200,
   },
   checkin: {
     fontSize: 10,
     fontStyle: 'italic',
+    color: '#999',
     marginTop: 0,
     marginBottom: 12,
   },
   cardImageSmall: {
-    borderRadius: 12,
-    alignSelf: 'stretch', height: 100,
+    borderRadius: 6,
+    alignSelf: 'stretch', 
+    height: 100
   },
 });
 export default ParkScreen;

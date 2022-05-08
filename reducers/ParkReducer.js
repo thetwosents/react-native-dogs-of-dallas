@@ -3,6 +3,7 @@ import database from "../firebase";
 
 const initialState = {
   parkCollection: [],
+  selectedPark: null,
 };
 
 const ParkCollection = (state = initialState, action) => {
@@ -12,33 +13,43 @@ const ParkCollection = (state = initialState, action) => {
         ...state,
         parkCollection: action.parks,
       };
+      case 'GET_PARKS_SUCCESS':
+        return {
+          ...state,
+          parkCollection: action.parks,
+        };
     case 'GET_PARK_BY_ID':
       return {
         ...state,
-        parkCollection: state.parkCollection.filter(park => park.id === action.parkId),
+        selectedPark: action.park,
       };
+      case 'GET_PARK_BY_ID_SUCCESS':
+        // Set selectedPark
+        return {
+          ...state,
+          selectedPark: action.park,
+        };
     case 'ADD_PARK':
       return {
         ...state,
         parkCollection: [...state.parkCollection, action.park],
       };
     case 'CHECK_IN_AT_PARK':
-      // Add timestamp to dog
-      action.dog.timestamp = action.timestamp;
-      action.dog.expires = new Date(action.timestamp + 1800000).getTime();
+      let dog = {};
+      dog.id = action.dogId;
+      dog.timestamp = new Date().getTime();
       return {
         ...state,
-        parkCollection: state.parkCollection.map(park => {
-          if (park.id === action.park.id) {
-            return {
-              ...park,
-              // Update the array of dogs at the park
-              dogs: [...park.dogs, action.dog],
-            };
-          }
-          return park;
-        })
+        selectedPark: {
+          ...state.selectedPark,
+          dogs: {
+            ...state.selectedPark.dogs,
+            [action.dogId]: dog,
+          },
+        },
+        
       }
+    
     case 'REMOVE_DOG_FROM_PARK':
       return {
         ...state,

@@ -1,23 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { Button, StatusBar, Text, Modal, TextInput, Image, View} from 'react-native';
+import { Button, StatusBar, StyleSheet, Text, Modal, TextInput, Image, View,ScrollView} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import QRCode from "react-qr-code";
 
 const DogProfileScreen = ({route, navigation}) => {
   const dog = route.params.dog;
   const {name, breed, image,id} = dog;
   const [modalOpen, setModalOpen] = useState(false);
+  const [currentDog, setCurrentDog] = useState(null);
 
+  const dogCollection = useSelector(state=>state.dogCollection.dogCollection || []);
+
+  useEffect(() => {
+    console.log('DogProfileScreen: useEffect');
+
+    setCurrentDog(dog);
+  }, [dog]);
+  
+  if (!currentDog) {
+    return null;
+  }
   return (
     <View>
-      <Text>{id}</Text>
-      <Text>{name}</Text>
-      <Text>{breed}</Text>
-      <Image source={image || 'https://via.placeholder.com/150'} />
-      
+      <StatusBar style="auto" />      
+      <ScrollView style={styles.container}>
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: currentDog.image || currentDog.featured_image }} style={styles.image} />
+        </View>
+        
+        <View style={styles.infoContainer}>          
+          <View style={{width: '50%'}}>
+          <Text style={styles.infoTitle}>{dog.breed}</Text>
+          <Text style={{ fontSize: 32, fontWeight: 'bold', marginTop: 4, marginBottom: 12, paddingLeft: 0 }}>{currentDog.name}</Text>
+          </View>
+          <View style={{width: '50%', alignItems: 'flex-end'}}>
+            <QRCode value={currentDog.id} size={64} />
+          </View>
+          
+        </View>
+      </ScrollView>
       {
         modalOpen &&
         <EditModal
-          dog={dog}
+          dog={currentDog}
           setModalOpen={setModalOpen}
         />
       }
@@ -31,39 +56,33 @@ const DogProfileScreen = ({route, navigation}) => {
         }}
       />
       <Button
-        title="Share"
-        onPress={() => {
-          navigation.navigate('Share Dog', {dog: dog});
-        }}
-      />
-      <Button
         title="Invites"
         onPress={() => {
-          navigation.navigate('Invite List', {dog: dog});
+          navigation.navigate('Invite List', {dog: currentDog});
         }}
       />
       <Button
         title="Accept Invite"
         onPress={() => {
-          navigation.navigate('Accept Invite', {dog: dog});
+          navigation.navigate('Accept Invite', {dog: currentDog});
         }}
       />
       <Button
         title="Decline Invite"
         onPress={() => {
-          navigation.navigate('Decline Invite', {dog: dog});
+          navigation.navigate('Decline Invite', {dog: currentDog});
         }}
       />
       <Button
         title="Check In"
         onPress={() => {
-          navigation.navigate('Check In', {dog: dog});
+          navigation.navigate('Check In', {dog: currentDog});
         }}
       />
       <Button
         title="Connect"
         onPress={() => {
-          navigation.navigate('Connect Dog', {dog: dog});
+          navigation.navigate('Connect Dog', {dog: currentDog});
         }}
       />
     </View>
@@ -132,3 +151,29 @@ const EditModal = ({dog, setModalOpen}) => {
     </Modal>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#fff',
+  },
+  imageContainer: {
+    width: '100%',
+    height: 240,
+  },
+  infoTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#999',
+    marginBottom:0,
+    marginTop: 0
+  },
+  infoContainer: {
+    padding: 20,
+    flexDirection: 'row',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+});
