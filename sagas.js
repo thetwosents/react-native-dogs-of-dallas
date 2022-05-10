@@ -1,6 +1,6 @@
 import { eventChannel, END } from 'redux-saga'
 import { all, call, put, take, fork, takeEvery } from 'redux-saga/effects'
-import { ref, set, onValue, get, child } from 'firebase/database'
+import { ref, set, onValue, get, child, update } from 'firebase/database'
 import db from './firebase'
 
 function* listenForDogs() {
@@ -94,6 +94,7 @@ function* watchAddDog() {
   }
 }
 
+
 // Watch for REMOVE DOG
 function* watchRemoveDog() {
   let payload = yield take('REMOVE_DOG')
@@ -113,6 +114,24 @@ function* watchAddParkToCollection() {
   let payload = yield takeEvery('ADD_PARK_TO_COLLECTION', addParkToCollection);
 }
 
+function* watchConnectDog() {
+  let payload = yield takeEvery('CONNECT_DOG', connectDog);
+}
+
+function* connectDog(action) {
+  console.log('connect dog', action);
+  let sender = action.sender;
+  let receiver = action.receiver;
+
+  let updates = {};
+  updates[`/dogs/${receiver}/connections/${sender}`] = true;
+  updates[`/dogs/${sender}/connections/${receiver}`] = true;
+
+  yield call(update, ref(db), updates);
+
+  yield put({ type: 'CONNECT_DOG_SUCCESS' });
+}
+
 function* addParkToCollection(action) {
   console.log('add park to collection', action);
   let path = ref(db, `users/${action.user}/parks/${action.park.id}`);
@@ -128,7 +147,7 @@ function* getParkById(action) {
   let park = parkSnapshot.val();
 
   if (park.dogs) {
-    let dogs = yield call(getByIds, park.dogs);
+    let dogs = yield call(getByIds, {collection: 'dogs', items:park.dogs});
     dogs.map(dog => {
       // get the timestamp from park.dogs
       let timestamp = park.dogs[dog.id].timestamp;
@@ -144,11 +163,15 @@ function* getParkById(action) {
 
 function* watchGetMyDogs() {
   let payload = yield take('GET_MY_DOGS')
-  let dogs = yield call(getByIds,payload.user.myDogs);
+  let dogs = yield call(getByIds,{collection: 'dogs', items:payload.user.myDogs});
   yield put({ type: 'GET_MY_DOGS_SUCCESS', dogs })
 }
 
-
+function* watchGetMyParks() {
+  let payload = yield take('GET_MY_PARKS')
+  let parks = yield call(getByIds,{collection: 'parks',items:payload.user.myParks});
+  yield put({ type: 'GET_MY_PARKS_SUCCESS', parks })
+}
 
 
 function* watchAddDogToCollection() {
@@ -165,9 +188,10 @@ Async functions
 */
 
 // ids is an object with keys and true as the value
-async function getByIds(ids) {
-  let collection = 'dogs';
-  let keys = Object.keys(ids);
+async function getByIds(object) {
+
+  let collection = object.collection;
+  let keys = Object.keys(object.items);
   let dogs = await Promise.all(keys.map(key => {
     return get(ref(db, collection + '/' + key));
   })).then(results => {
@@ -203,7 +227,9 @@ export default function* rootSaga() {
     fork(watchGetMyDogs),
     fork(watchGetParkById),
     fork(watchRemoveDog),
+    fork(watchConnectDog),
     fork(watchCheckInAtPark),
+    fork(watchGetMyParks),
     fork(watchAddParkToCollection),
     fork(watchAddDogToCollection),
   ]);

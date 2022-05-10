@@ -21,6 +21,16 @@ const UserReducer = (state = initialState, action) => {
         ...state,
         dogs: action.dogs || []
       };
+    case 'GET_MY_PARKS':
+      return {
+        ...state,
+        parks: action.parks || []
+      };
+    case 'GET_MY_PARKS_SUCCESS':
+      return {
+        ...state,
+        parks: action.parks || []
+      };
     case 'GET_MY_DOGS':
       return {
         ...state,

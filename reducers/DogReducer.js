@@ -43,6 +43,10 @@ const DogCollection = (state = initialState, action) => {
           ...state.dogCollection.slice(action.index + 1),
         ],
       };
+    case 'CONNECT_DOG':
+      return {
+        ...state
+      };
     default:
       return state;
   }

@@ -1,13 +1,22 @@
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Image, ScrollView,TextInput } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import MasonryList from '@react-native-seoul/masonry-list';
 import moment from 'moment';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const ParkScreen = ({ navigation }) => {
   const parkCollection = useSelector(state => state.parkCollection.parkCollection || [])
+  const [filteredParks, setFilteredParks] = useState(parkCollection || []);
   const dispatch = useDispatch();
   
+  useEffect(() => {
+    if (parkCollection) {
+      if (!filteredParks) {
+        setFilteredParks(parkCollection);
+      }
+    }
+  }, [parkCollection])
+
   // Group all parks by Neighborhood
   const parksByNeighborhood = {};
   parkCollection.forEach(park => {
@@ -16,7 +25,6 @@ const ParkScreen = ({ navigation }) => {
     } else {
       parksByNeighborhood[park.neighborhood] = [park];
     }
-
   });
 
   // Sort parks by name
@@ -47,8 +55,16 @@ const ParkScreen = ({ navigation }) => {
       <StatusBar style="auto" />
       <ScrollView>
       <Text style={{fontSize:48, fontWeight: 'bold', marginTop: 64, marginBottom: 12, paddingLeft: 10}}>Parks</Text>
+      <TextInput style={styles.search} placeholder="Search" onChangeText={(text) => {
+        // Filter the filtered parks by the text
+        const filteredParks = parkCollection.filter(park => {
+          return park.name.toLowerCase().includes(text.toLowerCase());
+        });
+        setFilteredParks(filteredParks);
+      }} />
+
       <MasonryList
-        data={parkCollection}
+        data={filteredParks}
         keyExtractor={(item, index) => item.id}
         numColumns={2}
         showsVerticalScrollIndicator={false}
@@ -89,6 +105,7 @@ const CardItem = ({ item, navigation }) => {
     </TouchableOpacity>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

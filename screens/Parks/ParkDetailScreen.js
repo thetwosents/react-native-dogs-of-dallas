@@ -102,8 +102,6 @@ const ParkDetailScreen = ({ route, navigation }) => {
               title="Unfavorite"
               onPress={() => dispatch({ type: 'REMOVE_PARK_FROM_COLLECTION', user: user.uid, park: park })} />
           }
-
-        
         <Button
           title="Check in at Park"
           onPress={() => checkInDogs()}

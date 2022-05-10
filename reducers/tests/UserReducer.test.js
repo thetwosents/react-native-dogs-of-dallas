@@ -8,6 +8,8 @@ import UserReducer from '../UserReducer';
     expect(UserReducer(undefined, {})).toEqual({
       myDogs: {},
       myParks: {},
-      myPacks: {}
+      myPacks: {},
+      signedin: false,
+      uid: null,
     });
   });
