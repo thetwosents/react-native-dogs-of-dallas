@@ -1,19 +1,13 @@
 import { eventChannel, END } from 'redux-saga'
 import { all, call, put, take, fork, takeEvery } from 'redux-saga/effects'
-import { ref, set, onValue, get, child, update } from 'firebase/database'
+import { ref, set, onValue, get, update } from 'firebase/database'
 import db from './firebase'
 
 function* listenForDogs() {
   let path = ref(db, 'dogs');
-
   const channel = yield call(eventChannel, (emitter) => {
     onValue(path, (snapshot) => {
-      let dogs = Object.keys(snapshot.val()).map(key => {
-        return {
-          ...snapshot.val()[key],
-          id: key,
-        };
-      });
+      let dogs = formatObject(snapshot);
       emitter({ type: 'GET_DOGS_SUCCESS', dogs });
     });
     return () => { };
@@ -27,17 +21,9 @@ function* listenForDogs() {
 
 function* listenForParks() {
   let path = ref(db, 'parks');
-
   const channel = yield call(eventChannel, (emitter) => {
     onValue(path, (snapshot) => {
-
-      // Get the object.keys make the response an array
-      let parks = Object.keys(snapshot.val()).map(key => {
-        return {
-          ...snapshot.val()[key],
-          id: key,
-        };
-      });
+      let parks = formatObject(snapshot)
       emitter({ type: 'GET_PARKS_SUCCESS', parks });
     });
     return () => { };
@@ -67,20 +53,29 @@ function* listenForUser() {
   }
 }
 
-/*
-Watchers
-*/
 
 function* watchCheckInAtPark() {
   yield takeEvery('CHECK_IN_AT_PARK', checkInAtPark);
 }
 
-function* checkInAtPark(action) {
+/**
+ * Checks in a dog at a park
+ * @param  {String} dogId The ID of the dog
+ * @param  {String} parkId The ID of the park
+ */
+function* checkInAtPark({
+  dogId,
+  parkId
+}) {
+
+  // Create check-in object
   let dog = {};
   dog.timestamp = new Date().getTime();
-  yield call(set, ref(db, `parks/${action.parkId}/dogs/${action.dogId}`), dog);
-  // Update selected park
-  let parkSnapshot = yield call(get, ref(db, 'parks/' + action.parkId));
+
+  // Set the check-in on the dog at the park
+  yield call(set, ref(db, `parks/${parkId}/dogs/${dogId}`), dog);
+
+  let parkSnapshot = yield call(get, ref(db, 'parks/' + parkId));
   let park = parkSnapshot.val();
   yield put({ type: 'GET_PARK_BY_ID_SUCCESS', park });
 }
@@ -94,8 +89,6 @@ function* watchAddDog() {
   }
 }
 
-
-// Watch for REMOVE DOG
 function* watchRemoveDog() {
   let payload = yield take('REMOVE_DOG')
   try {
@@ -119,7 +112,6 @@ function* watchConnectDog() {
 }
 
 function* connectDog(action) {
-  console.log('connect dog', action);
   let sender = action.sender;
   let receiver = action.receiver;
 
@@ -133,43 +125,47 @@ function* connectDog(action) {
 }
 
 function* addParkToCollection(action) {
-  console.log('add park to collection', action);
   let path = ref(db, `users/${action.user}/parks/${action.park.id}`);
   yield call(set, path, true);
-  // Get park by id
+
+  // Return park
   let parkSnapshot = yield call(get, ref(db, 'parks/' + action.park.id));
   yield put({ type: 'ADD_PARK_TO_COLLECTION_SUCCESS', park: parkSnapshot.val() });
 }
 
-function* getParkById(action) {
-  let parkId = action.parkId;
+/**
+ * Get a park by ID
+ * @param  {String} parkID The ID of the park
+ * @return  {Object} The park from the database
+ */
+function* getParkById({
+  parkId
+}) {
   let parkSnapshot = yield call(get, ref(db, 'parks/' + parkId));
   let park = parkSnapshot.val();
 
+  // Get the dogs at the park
   if (park.dogs) {
-    let dogs = yield call(getByIds, {collection: 'dogs', items:park.dogs});
+    let dogs = yield call(getByIds, { collection: 'dogs', items: park.dogs });
     dogs.map(dog => {
-      // get the timestamp from park.dogs
       let timestamp = park.dogs[dog.id].timestamp;
       dog.timestamp = timestamp;
-      return dog; 
+      return dog;
     })
-
     park.dogs = dogs;
   }
-
   yield put({ type: 'GET_PARK_BY_ID_SUCCESS', park });
 }
 
 function* watchGetMyDogs() {
   let payload = yield take('GET_MY_DOGS')
-  let dogs = yield call(getByIds,{collection: 'dogs', items:payload.user.myDogs});
+  let dogs = yield call(getByIds, { collection: 'dogs', items: payload.user.myDogs });
   yield put({ type: 'GET_MY_DOGS_SUCCESS', dogs })
 }
 
 function* watchGetMyParks() {
   let payload = yield take('GET_MY_PARKS')
-  let parks = yield call(getByIds,{collection: 'parks',items:payload.user.myParks});
+  let parks = yield call(getByIds, { collection: 'parks', items: payload.user.myParks });
   yield put({ type: 'GET_MY_PARKS_SUCCESS', parks })
 }
 
@@ -183,29 +179,30 @@ function* watchAddDogToCollection() {
   }
 }
 
-/*
-Async functions
-*/
-
-// ids is an object with keys and true as the value
-async function getByIds(object) {
-
-  let collection = object.collection;
-  let keys = Object.keys(object.items);
-  let dogs = await Promise.all(keys.map(key => {
+/**
+ * Get items from the DB by collection name and item ids
+ * @param  {String} collection The collection name
+ * @param  {Array} itemsObj The IDs of the items
+ * @return {Array} Returns array of items from DB
+ */
+async function getByIds({ collection, itemsObj }) {
+  let keys = Object.keys(itemsObj);
+  let items = await Promise.all(keys.map(key => {
     return get(ref(db, collection + '/' + key));
   })).then(results => {
-    let dogs = results.map(result => {
-      return {
-        ...result.val(),
-        id: result.key,
-      };
-    })
-    return dogs;
+    let items = formatObject(results);
+    return items;
   });
+  return items;
+}
 
-  return dogs;
-
+/**
+ * Create an item in the database
+ * @param  {Object} item The item to create
+ * @param  {String} path The path to create the item at
+ */
+function addItem(item, path) {
+  set(ref(db, path, item));
 
 }
 function addDog(dog) {
@@ -216,6 +213,21 @@ function addDogToCollection(payload) {
   let user = payload.user;
   let dog = payload.dog;
   set(ref(db, 'users/' + user.uid + '/myDogs/' + dog.id), true);
+}
+
+/**
+ * Convert Firebase snapshot into an array of objects
+ * @param  {Object} snapshot Snapshot from the database
+ * @return {Object} The structured object
+ */
+function formatObject(snapshot) {
+  let response = Object.keys(snapshot.val()).map(key => {
+    return {
+      ...snapshot.val()[key],
+      id: key,
+    };
+  });
+  return response;
 }
 
 export default function* rootSaga() {

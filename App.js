@@ -1,6 +1,4 @@
 import React, { useEffect } from 'react';
-// You can import Ionicons from @expo/vector-icons/Ionicons if you use Expo or
-// react-native-vector-icons/Ionicons otherwise.
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FoundationIcons from 'react-native-vector-icons/Foundation';
 
@@ -8,20 +6,15 @@ import FoundationIcons from 'react-native-vector-icons/Foundation';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import NavTabs from './components/NavTabs';
 
 // Screens
 import HomeScreen from './screens/Home';
-import YourCollectionScreen from './screens/Collection';
 
 // Dogs
 import AddDogScreen from './screens/Dogs/AddDog';
 import DogProfileScreen from './screens/Dogs/DogProfile';
 import DogScreen from './screens/Dogs/Dogs';
 import MyDogsScreen from './screens/Dogs/MyDogs';
-
-// Packs
-import PacksScreen from './screens/Packs';
 
 // Parks
 import ParksScreen from './screens/Parks';
@@ -71,7 +64,6 @@ export default function App() {
               iconName = focused ? 'ios-chatbox-ellipses' : 'ios-chatbox-ellipses-outline';
               return <Ionicons name={iconName} size={size} color={color} />;
             } 
-            // You can return any component that you like here!
             return <Ionicons name={iconName} size={size} color={color} />;
           },
           tabBarActiveTintColor: 'green',
@@ -80,6 +72,7 @@ export default function App() {
         })}>
           <Tab.Screen name="Home" component={MainStackNavigator} />
           <Tab.Screen name="Parks" component={ParkStackNavigator} />
+          <Tab.Screen name="Packs" component={MainStackNavigator} />
           <Tab.Screen name="Dogs" component={DogStackNavigator} />          
         </Tab.Navigator>
       </NavigationContainer>
