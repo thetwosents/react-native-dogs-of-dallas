@@ -1,78 +1,108 @@
 import React, { useState, useEffect } from 'react';
-import { Button, StatusBar, Text, Modal, TextInput, Image, View} from 'react-native';
+import { Button, StatusBar, StyleSheet, Text, Modal, TextInput, Image, View, ScrollView } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import QRCode from "react-qr-code";
 
-const DogProfileScreen = ({route, navigation}) => {
+const DogProfileScreen = ({ route, navigation }) => {
   const dog = route.params.dog;
-  const {name, breed, image,id} = dog;
+  const { name, breed, image, id } = dog;
   const [modalOpen, setModalOpen] = useState(false);
+  const [currentDog, setCurrentDog] = useState(null)
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
 
+  useEffect(() => {
+    setCurrentDog(dog);
+  }, [dog]);
+
+  useEffect(() => {
+    if (user) {
+      if (user.myDogs) {
+        if (user.myDogs[id]) {
+          setIsOwner(true);
+        }
+        if (user.dogs) {
+          // Check in array of dogs if the dog is connected
+          user.dogs.forEach(dog => {
+            let connections = dog.connections;
+            if (connections) {
+              if (Object.keys(connections).includes(id)) {
+                setIsConnected(true);
+              }
+            }
+          });
+        }
+      }
+    }
+  }, [user]);
+
+  if (!currentDog) {
+    return null;
+  }
   return (
     <View>
-      <Text>{id}</Text>
-      <Text>{name}</Text>
-      <Text>{breed}</Text>
-      <Image source={image || 'https://via.placeholder.com/150'} />
-      
+      <StatusBar style="auto" />
+      <ScrollView style={styles.container}>
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: currentDog.image || currentDog.featured_image }} style={styles.image} />
+        </View>
+
+        <View style={styles.infoContainer}>
+          <View style={{ width: '50%' }}>
+            <Text style={styles.infoTitle}>{dog.breed}</Text>
+            <Text style={{ fontSize: 32, fontWeight: 'bold', marginTop: 4, marginBottom: 12, paddingLeft: 0 }}>{currentDog.name}</Text>
+          </View>
+          <View style={{ width: '50%', alignItems: 'flex-end' }}>
+            <QRCode value={currentDog.id} size={64} />
+          </View>
+
+        </View>
+      </ScrollView>
       {
         modalOpen &&
         <EditModal
-          dog={dog}
+          dog={currentDog}
           setModalOpen={setModalOpen}
         />
       }
+      {
+        isOwner &&
+        <Button
+          title="Check In"
+          onPress={() => {
+            navigation.navigate('Check In', { dog: currentDog });
+          }}
+        />
+      }
+      {
+        !isConnected &&
+        <Button
+          title="Connect"
+          onPress={() => {
+            if (user) {
+              if (user.myDogs) {
+                Object.keys(user.myDogs).forEach(dogId => {
+                  dispatch({
+                    type: 'CONNECT_DOG',
+                    receiver: currentDog.id,
+                    sender: dogId,
+                  });
+                });
+              }
+            }
+          }}
+        />
+      }
 
-      {/* Actions dog profiles can do */}
-      <Button
-        title="Edit"
-        onPress={() => {
-          // Open the modal
-          setModalOpen(true);
-        }}
-      />
-      <Button
-        title="Share"
-        onPress={() => {
-          navigation.navigate('Share Dog', {dog: dog});
-        }}
-      />
-      <Button
-        title="Invites"
-        onPress={() => {
-          navigation.navigate('Invite List', {dog: dog});
-        }}
-      />
-      <Button
-        title="Accept Invite"
-        onPress={() => {
-          navigation.navigate('Accept Invite', {dog: dog});
-        }}
-      />
-      <Button
-        title="Decline Invite"
-        onPress={() => {
-          navigation.navigate('Decline Invite', {dog: dog});
-        }}
-      />
-      <Button
-        title="Check In"
-        onPress={() => {
-          navigation.navigate('Check In', {dog: dog});
-        }}
-      />
-      <Button
-        title="Connect"
-        onPress={() => {
-          navigation.navigate('Connect Dog', {dog: dog});
-        }}
-      />
     </View>
   )
 }
 
 export default DogProfileScreen;
 
-const EditModal = ({dog, setModalOpen}) => {
+const EditModal = ({ dog, setModalOpen }) => {
   const [name, setName] = useState(dog.name || '');
   const [breed, setBreed] = useState(dog.breed || '');
   const [image, setImage] = useState(dog.image || '');
@@ -132,3 +162,29 @@ const EditModal = ({dog, setModalOpen}) => {
     </Modal>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#fff',
+  },
+  imageContainer: {
+    width: '100%',
+    height: 240,
+  },
+  infoTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#999',
+    marginBottom: 0,
+    marginTop: 0
+  },
+  infoContainer: {
+    padding: 20,
+    flexDirection: 'row',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+});

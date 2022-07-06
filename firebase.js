@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 import { getAuth, signInAnonymously } from "firebase/auth";
 
-var user = null;
 const firebaseConfig = {
   apiKey: "AIzaSyCOTHeRQtARcXK7gu-AO5_pb2NMNMhPJTE",
   authDomain: "paw-pack-872f4.firebaseapp.com",
@@ -20,21 +19,15 @@ const database = getDatabase(app);
 const auth = getAuth();
 signInAnonymously(auth)
   .then(() => {
-    user = auth.currentUser;
-
-    console.log("User signed in anonymously");
-
-    // Make globally available in the application
+    let user = auth.currentUser;
     window.user = user;
     localStorage.setItem("uid", user.uid);
-
-    // Update the user in the state
     dispatch({ type: "USER_SIGNED_IN", user });
   })
   .catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
-    // ...
+
   });
 
 

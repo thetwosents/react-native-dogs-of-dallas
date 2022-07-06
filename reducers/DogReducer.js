@@ -1,13 +1,18 @@
 
 const initialState = {
   dogCollection: [],
+  currentDog: null,
 };
 
 const DogCollection = (state = initialState, action) => {
   // Get the dogs from the database and set them in the state
-
   switch (action.type) {
     case 'GET_DOGS':    
+      return {
+        ...state,
+        dogCollection: action.dogs,
+      };
+    case 'GET_DOGS_SUCCESS':    
       return {
         ...state,
         dogCollection: action.dogs,
@@ -37,6 +42,10 @@ const DogCollection = (state = initialState, action) => {
           ...state.dogCollection.slice(0, action.index),
           ...state.dogCollection.slice(action.index + 1),
         ],
+      };
+    case 'CONNECT_DOG':
+      return {
+        ...state
       };
     default:
       return state;
